@@ -1,4 +1,5 @@
 
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,7 +15,7 @@ public class MouseLook : MonoBehaviour
     public float gravity = -9.81f;
     public int currentMoney = 0;
     public Camera playerCamera;
-    public Text descriptionText;
+    public TextMeshProUGUI descriptionText;
     public Text moneyText;
 
     public Image selectionDot;
