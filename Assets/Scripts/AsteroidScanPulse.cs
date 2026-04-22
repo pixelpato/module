@@ -47,12 +47,4 @@ public class AsteroidScanPulse : MonoBehaviour
     {
         pulseTimer = 0f;
     }
-
-    void OnParticleCollision(GameObject other)
-    {
-        if (other.CompareTag("ScanWave"))
-        {
-            TriggerScanPulse();
-        }
-    }
 }

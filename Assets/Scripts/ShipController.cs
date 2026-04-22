@@ -1,16 +1,25 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShipController : MonoBehaviour
 {
-    public ParticleSystem fireParticles;
     public GameObject scanWave;
 
     public float thrustForce = 20f;
     public float torqueForce = 10f;
     public float dampingStrength = 5f;
 
+    public float maxScanRadius = 200f;
+    public float scanSpeed = 20f;
+
+    private bool isScanning = false;
+
     private Rigidbody rb;
+    public LayerMask asteroidLayer;
+    private HashSet<Collider> alreadyHit = new HashSet<Collider>();
+
 
     void Start()
     {
@@ -56,9 +65,51 @@ public class ShipController : MonoBehaviour
 
     void FireScanner()
     {
-        if (fireParticles != null)
+        if (isScanning) return;
+
+        StartCoroutine(ScanRoutine());
+    }
+
+    IEnumerator ScanRoutine()
+    {
+        float radius = 0f;
+
+        isScanning = true;
+
+        scanWave.transform.localScale = Vector3.one;
+        alreadyHit.Clear();
+
+        while (radius < maxScanRadius)
         {
-            fireParticles.Emit(1);
+            radius += scanSpeed * Time.deltaTime;
+
+            float diameter = radius * 2f;
+            scanWave.transform.localScale = Vector3.one * diameter;
+
+            Collider[] hits = Physics.OverlapSphere(
+                transform.position,
+                radius,
+                asteroidLayer
+            );
+
+            foreach (var hit in hits)
+            {
+                if (alreadyHit.Contains(hit)) continue;
+
+                alreadyHit.Add(hit);
+
+                var asteroid = hit.GetComponent<AsteroidScanPulse>();
+                if (asteroid != null)
+                {
+                    asteroid.TriggerScanPulse();
+                }
+            }
+
+            yield return null;
         }
+
+        scanWave.transform.localScale = Vector3.one;
+
+        isScanning = false;
     }
 }
